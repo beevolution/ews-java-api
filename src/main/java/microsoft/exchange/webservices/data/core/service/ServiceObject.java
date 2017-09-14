@@ -391,13 +391,17 @@ public abstract class ServiceObject {
    * @return The value of specified property in this instance.
    * @throws Exception the exception
    */
-  public Object getObjectFromPropertyDefinition(
-      PropertyDefinitionBase propertyDefinition) throws Exception {
-    PropertyDefinition propDef = (PropertyDefinition) propertyDefinition;
+  public Object getObjectFromPropertyDefinition(PropertyDefinitionBase propertyDefinition) throws Exception {
 
-    if (propDef != null) {
-      return this.getPropertyBag().getObjectFromPropertyDefinition(propDef);
-    } else {
+    if(propertyDefinition instanceof PropertyDefinition) {
+       return this.getPropertyBag().getObjectFromPropertyDefinition((PropertyDefinition) propertyDefinition);
+     } else if(propertyDefinition instanceof ExtendedPropertyDefinition){
+       OutParam<Object> propertyValue = new OutParam<Object>();
+       if(this.tryGetExtendedProperty(Object.class, (ExtendedPropertyDefinition)propertyDefinition, propertyValue)){
+         return propertyValue.getParam();
+       }
+       return null;
+     } else {
       // E14:226103 -- Other subclasses of PropertyDefinitionBase are not supported.
       throw new UnsupportedOperationException(String.format(
           "This operation isn't supported for property definition type %s.",
@@ -452,9 +456,10 @@ public abstract class ServiceObject {
   public <T> boolean tryGetProperty(Class<T> cls, PropertyDefinitionBase propertyDefinition,
       OutParam<T> propertyValue) throws Exception {
 
-    PropertyDefinition propDef = (PropertyDefinition) propertyDefinition;
-    if (propDef != null) {
-      return this.getPropertyBag().tryGetPropertyType(cls, propDef, propertyValue);
+    if(propertyDefinition instanceof PropertyDefinition) {
+      return this.getPropertyBag().tryGetPropertyType(cls, (PropertyDefinition) propertyDefinition, propertyValue);
+    } else if(propertyDefinition instanceof ExtendedPropertyDefinition){
+      return this.tryGetExtendedProperty(cls, (ExtendedPropertyDefinition) propertyDefinition, propertyValue);
     } else {
       // E14:226103 -- Other subclasses of PropertyDefinitionBase are not supported.
       throw new UnsupportedOperationException(String.format(
