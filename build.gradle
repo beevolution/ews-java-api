@@ -18,8 +18,8 @@ apply plugin: 'maven'
 apply plugin: "com.jfrog.artifactory"
 apply plugin: 'maven-publish'
 
-group = $projectGroupId
-version = $projectVersion
+group = projectGroupId
+version = projectVersion
 
 description = """Exchange Web Services Java API"""
 
@@ -106,7 +106,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 artifacts {
   archives sourcesJar
-  archives javadocJar
+//  archives javadocJar
 }
 
 publishing {
