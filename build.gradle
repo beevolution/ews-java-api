@@ -1,21 +1,81 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+     classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
+  }
+}
+
+configurations.all {
+  resolutionStrategy {
+    cacheChangingModulesFor 0, 'seconds'
+  }
+}
+
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: "com.jfrog.artifactory"
+apply plugin: 'maven-publish'
 
 group = 'com.microsoft.ews-java-api'
-version = '2.1-SNAPSHOT'
+version = '2.1-beevolution-SNAPSHOT'
 
 description = """Exchange Web Services Java API"""
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
 
+def artifactoryUrl = 'http://mvn.dev.sharesuite.com:8081/artifactory/'
+def artifactoryPublishRepo = ''
+def snapshotBuild = false
+def snapshotSuffix = ''
 
+// read current git branch
+def branchName = "git symbolic-ref --short -q HEAD".execute().text.trim()
+if (branchName == "master") {
+  artifactoryPublishRepo = 'libs-release'
+} else if (branchName == "develop") {
+  artifactoryPublishRepo = 'libs-snapshot'
+  snapshotBuild = true
+} else {
+  artifactoryPublishRepo = 'libs-branch-snapshot'
+  snapshotBuild = true
+}
+
+
+if (snapshotBuild) {
+  version = projectVersion + '-SNAPSHOT'
+  snapshotSuffix = '-SNAPSHOT'
+}
 
 repositories {
-        
+
+  // We only add mvn snapshot repo when snapshotBuild is true
+  if (snapshotBuild) {
+
+    // We only add local mvn repo when allowMvnLocal is true
+    // Enable to use local builds as dependencies.
+    if (project.hasProperty("allowMvnLocal") && allowMvnLocal.toBoolean()) {
+      mavenLocal()
+    }
+
+    maven {
+      url artifactoryUrl + 'libs-snapshot'
+    }
+  }
+
+  jcenter()
+
+  maven {
+    url artifactoryUrl + 'libs-release'
+  }
+}
+
+repositories {
      maven { url "http://repo.maven.apache.org/maven2" }
 }
 dependencies {
@@ -32,4 +92,53 @@ dependencies {
     testCompile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.12'
     testCompile group: 'ch.qos.logback', name: 'logback-classic', version:'1.1.3'
     testCompile group: 'org.slf4j', name: 'jcl-over-slf4j', version:'1.7.12'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier = 'javadoc'
+  from javadoc.destinationDir
+}
+
+artifacts {
+  archives sourcesJar
+  archives javadocJar
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+
+      artifact(sourcesJar) {
+        classifier = 'sources'
+      }
+
+      artifact(javadocJar) {
+        classifier = 'javadoc'
+      }
+    }
+  }
+}
+
+
+artifactoryPublish {
+
+  publish {
+    contextUrl = artifactoryUrl
+
+    repository {
+      repoKey = artifactoryPublishRepo + '-local'
+      username = artifactoryUser
+      password = artifactoryPassword
+    }
+
+    defaults {
+      publications('mavenJava')
+    }
+  }
 }
