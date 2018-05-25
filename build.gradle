@@ -48,7 +48,7 @@ if (branchName == "master") {
 
 
 if (snapshotBuild) {
-  version = projectVersion + '-SNAPSHOT'
+  version = version + '-SNAPSHOT'
   snapshotSuffix = '-SNAPSHOT'
 }
 
