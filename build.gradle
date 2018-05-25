@@ -3,7 +3,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-     classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
+    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
   }
 }
 
@@ -18,15 +18,15 @@ apply plugin: 'maven'
 apply plugin: "com.jfrog.artifactory"
 apply plugin: 'maven-publish'
 
-group = 'com.microsoft.ews-java-api'
-version = '2.1-beevolution-SNAPSHOT'
+group = $projectGroupId
+version = $projectVersion
 
 description = """Exchange Web Services Java API"""
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 tasks.withType(JavaCompile) {
-	options.encoding = 'UTF-8'
+  options.encoding = 'UTF-8'
 }
 
 def artifactoryUrl = 'http://mvn.dev.sharesuite.com:8081/artifactory/'
@@ -76,22 +76,22 @@ repositories {
 }
 
 repositories {
-     maven { url "http://repo.maven.apache.org/maven2" }
+  maven { url "http://repo.maven.apache.org/maven2" }
 }
 dependencies {
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version:'4.5.3'
-    compile group: 'org.apache.httpcomponents', name: 'httpcore', version:'4.4.6'
-    compile group: 'commons-io', name: 'commons-io', version:'2.5'
-    compile group: 'commons-logging', name: 'commons-logging', version:'1.2'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.6'
-    compile group: 'joda-time', name: 'joda-time', version:'2.9.9'
+  compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+  compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.6'
+  compile group: 'commons-io', name: 'commons-io', version: '2.5'
+  compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
+  compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+  compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
 
-    testCompile group: 'junit', name: 'junit', version:'4.12'
-    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version:'1.3'
-    testCompile group: 'org.mockito', name: 'mockito-core', version:'1.10.19'
-    testCompile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.12'
-    testCompile group: 'ch.qos.logback', name: 'logback-classic', version:'1.1.3'
-    testCompile group: 'org.slf4j', name: 'jcl-over-slf4j', version:'1.7.12'
+  testCompile group: 'junit', name: 'junit', version: '4.12'
+  testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+  testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
+  testCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+  testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.3'
+  testCompile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.12'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
